@@ -54,6 +54,7 @@ public class AddFoodStats {
             FMLLog.bigWarning("Can't save json mod config!");
             e.printStackTrace();
         }
+
     }
 
     public static void load() {
