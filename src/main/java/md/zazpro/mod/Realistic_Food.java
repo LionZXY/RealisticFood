@@ -44,6 +44,5 @@ public class Realistic_Food //Start the class Declaration
     	System.out.println(GameRegistry.findUniqueIdentifierFor(Items.rotten_flesh));
     	System.out.println(GameRegistry.findItem("minecraft", "apple"));
     	AddFoodStats.addFoodStats();
-    	JsonConfig.save();
     }
 }

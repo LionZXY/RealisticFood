@@ -20,47 +20,7 @@ public class JsonConfig {
     static File jsonFile = new File(Loader.instance().getConfigDir() + "/RealisticFood", "FoodStats.json");
 
 
-    public static void save() {
 
-        if (!jsonFile.canWrite()) {
-            try {
-                jsonFile.getParentFile().mkdirs();
-                jsonFile.createNewFile();
-            } catch (Exception e) {
-                FMLLog.bigWarning("Can't create json mod config!");
-                e.printStackTrace();
-            }
-        }
-
-        try {
-            FileOutputStream os = new FileOutputStream(jsonFile);
-            os.write(getFormatedText(mainJson.toString()).getBytes());
-            os.close();
-        } catch (Exception e) {
-            FMLLog.bigWarning("Can't save json mod config!");
-            e.printStackTrace();
-        }
-    }
-
-    public static void load() {
-
-        if (!jsonFile.canWrite()) {
-            try {
-                jsonFile.getParentFile().mkdirs();
-                jsonFile.createNewFile();
-            } catch (Exception e) {
-                FMLLog.bigWarning("Can't create json mod config!");
-                e.printStackTrace();
-            }
-        }
-
-        try {
-            mainJson = new JsonParser().parse(new FileReader(jsonFile)).getAsJsonObject();
-        } catch (Exception e) {
-            FMLLog.bigWarning("Can't load json mod config!");
-            e.printStackTrace();
-        }
-    }
 
     public static Property get(String category, String name, boolean defaultValue) {
         Property prop = new Property(category, name, Property.Type.BOOLEAN);
@@ -146,35 +106,5 @@ public class JsonConfig {
         return prop;
     }
 
-    public static String getFormatedText(String in) {
-        StringBuilder sb = new StringBuilder();
-        boolean isIgnore = false;
-        int tabCount = 0;
-        int b;
-        for (int i = 0; i < in.length(); i++) {
-            sb.append(in.charAt(i));
-            if (in.charAt(i) == '\"')
-                isIgnore = !isIgnore;
-            if (!isIgnore)
-                switch (in.charAt(i)) {
-                    case '{':
-                    case '[':
-                        tabCount++;
-                    case ',':
-                        sb.append('\n');
-                        for (b = 0; b < tabCount; b++)
-                            sb.append('\t');
-                        break;
-                    case '}':
-                    case ']':
-                        tabCount--;
-                        sb.deleteCharAt(sb.length() - 1);
-                        sb.append("\n");
-                        for (b = 0; b < tabCount; b++)
-                            sb.append('\t');
-                        sb.append(in.charAt(i));
-                }
-        }
-        return sb.toString();
-    }
+
 }
