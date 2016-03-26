@@ -4,7 +4,10 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
-
+import cpw.mods.fml.common.FMLLog;
+import cpw.mods.fml.common.Loader;
+import net.minecraft.crash.CrashReport;
+import net.minecraftforge.common.config.Property;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -20,29 +23,9 @@ public class AddFoodStats {
     public static JsonArray mainJson = new JsonArray();
 
     static public void addFoodStats() {
-        try {
-            try {
-                if (!jsonFile.canWrite()) {
-                    jsonFile.getParentFile().mkdirs();
-                    jsonFile.createNewFile();
+	load();
                     AllFoodHandler.addVanilaFood();
-                    FileOutputStream os = new FileOutputStream(jsonFile);
-                    os.write(JsonConfig.getFormatedText(mainJson.toString()).getBytes());
-                    os.close();
-
-                } else {
-                    mainJson = new JsonParser().parse(new JsonReader(new FileReader(jsonFile))).getAsJsonArray();
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-
-            for (JsonElement obj2 : mainJson) {
-              //  SimplyHammer.hammers.add(addHammerFromJsonObject(obj2.getAsJsonObject()));
-            }
-        } catch (IllegalStateException e) {
-            e.printStackTrace();
-        }
+	save();
     }
     
     static public void addFood(String foodName, int heath, String exitName	) {
@@ -53,6 +36,78 @@ public class AddFoodStats {
         mainJson.add(obj);
     }
 
+    public static void save() {
 
+        if (!jsonFile.canWrite()) {
+            try {
+                jsonFile.getParentFile().mkdirs();
+                jsonFile.createNewFile();
+            } catch (Exception e) {
+                FMLLog.bigWarning("Can't create json mod config!");
+                e.printStackTrace();
+            }
+        }
+
+        try {
+            FileOutputStream os = new FileOutputStream(jsonFile);
+            os.write(getFormatedText(mainJson.toString()).getBytes());
+            os.close();
+        } catch (Exception e) {
+            FMLLog.bigWarning("Can't save json mod config!");
+            e.printStackTrace();
+        }
+    }
+
+    public static void load() {
+
+        if (!jsonFile.canWrite()) {
+            try {
+                jsonFile.getParentFile().mkdirs();
+                jsonFile.createNewFile();
+            } catch (Exception e) {
+                FMLLog.bigWarning("Can't create json mod config!");
+                e.printStackTrace();
+            }
+        }
+        System.out.println(jsonFile.getAbsoluteFile());
+        try {
+            mainJson = new JsonParser().parse(new FileReader(jsonFile)).getAsJsonObject();
+        } catch (Exception e) {
+            FMLLog.bigWarning("Can't load json mod config!");
+            e.printStackTrace();
+        }
+    }
+    
+        public static String getFormatedText(String in) {
+        StringBuilder sb = new StringBuilder();
+        boolean isIgnore = false;
+        int tabCount = 0;
+        int b;
+        for (int i = 0; i < in.length(); i++) {
+            sb.append(in.charAt(i));
+            if (in.charAt(i) == '\"')
+                isIgnore = !isIgnore;
+            if (!isIgnore)
+                switch (in.charAt(i)) {
+                    case '{':
+                    case '[':
+                        tabCount++;
+                    case ',':
+                        sb.append('\n');
+                        for (b = 0; b < tabCount; b++)
+                            sb.append('\t');
+                        break;
+                    case '}':
+                    case ']':
+                        tabCount--;
+                        sb.deleteCharAt(sb.length() - 1);
+                        sb.append("\n");
+                        for (b = 0; b < tabCount; b++)
+                            sb.append('\t');
+                        sb.append(in.charAt(i));
+                }
+        }
+        return sb.toString();
+    }
 
 }
